@@ -152,28 +152,29 @@ def dumper(artist='', track='', num=1):
         start = time.time()
         #import pdb; pdb.set_trace()
         features = sp.audio_features(tids)
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         delta = time.time() - start
         #print("Loaded '%s' features in %s minutes")
         data = {}
         
         for feature in features:
             
-
-            data['feature'] = json.dumps(feature, indent=4)
-            analysis = sp._get(feature['analysis_url'])
-
-            data['analysis'] = json.dumps(analysis, indent=4)
-            name = t['name'] # track name
+            data[u'feature'] = json.dumps(feature, indent=4)
+            #import pdb; pdb.set_trace()
+            #analysis = sp._get(feature['analysis_url'])
+            #import pdb; pdb.set_trace()
+            #data['analysis'] = json.dumps(analysis, indent=4)
+            data[u'name'] = json.dumps(t['name'], indent=4) # track name
            
-            artist = t['artists'][0]['name']
-            a = artist.encode('utf-8') 
-            t = name.encode('utf-8')
+            data[u'artist'] = json.dumps(t['artists'][0]['name'])
+            a = data['artist'].encode('utf-8') 
+            t = data['name'].encode('utf-8')
             track_title = '{}'.format(a)+'_'+'{}'.format(t)
-            final = {u'track_title':track_title, u'feature':feature,
-                         u'analysis':analysis}
-
-            return final
+#            final = {u'track_title':track_title, u'feature':feature,
+#                         u'analysis':analysis}
+            print track_title
+            #import pdb; pdb.set_trace()
+            return data
             
 
 def dumper_artist(artist='', num=50):
@@ -284,7 +285,7 @@ def runner(artist='', track=''):
     data = {'q': artist_choice+' '+track_choice}
     response = requests.get(search_url, data=data, headers=headers) 
     print data, response==True
-    i
+    
     if not response:
         try:
             artist_choice = artist.encode('utf-8')
@@ -293,7 +294,7 @@ def runner(artist='', track=''):
             
             byte = e[1]
             if byte in artist:
-                #import pdb; pdb.set_trace()
+                import pdb; pdb.set_trace()
                 artist_choice = unidecode(byte.decode('utf-8'))
                 print artist_choice,
         

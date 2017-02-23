@@ -11,7 +11,7 @@ import time
 
 #Enter Artist Track and confirm lyrics and analysis
 a = raw_input('Artist: ') ; b = raw_input('Track: ')
-#a = 'lenox'; b = 'whatever'
+#a = 'travis scott'; b = 'beibs'
 #q1 = str(raw_input('Lyrics? Y/N ')) 
 #q2 = str(raw_input('analysis? Y/N '))
 #if q1.upper() == 'Y':
@@ -54,17 +54,17 @@ if __name__=='__main__':
 #        #analysis = audio_features1.dumper(artist=a)
     title = a+' '+b
     if g:
-        u_title = g['track_title']
-        name = u_title
-        name = name.partition('_')
-        lt = name[-1]; la = name[0]
-    #import pdb; pdb.set_trace()
+        u_title = g['name']
+        u_artist = g['artist']
+#        name = name.partition('_')
+#        lt = name[-1]; la = name[0]
+        #import pdb; pdb.set_trace()
     # f**kin ni**a
 #        if '**' in name[-1]:
 #            lt = string.replace(name[-1], '**', 'gg')
         
-        lyrics = audio_features2.runner(artist=la, track=lt)
-        
+        lyrics = audio_features2.runner(artist=u_artist, track=u_title)
+        #import pdb; pdb.set_trace()
 ##        if la not in lyrics and lt not in lyrics:
 ##            lyrics = None
 #        elif lt in lyrics or la in lyrics:
