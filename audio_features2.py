@@ -58,6 +58,10 @@ class Query:
     def query_artist(self, artist='', num=50):
         return sp.search(artist, type='track', limit=num) 
     
+    @classmethod
+    def query_user(self, user='', num=5):
+        return sp.search()
+    
     def ask(self, artist='', track='', num=0):
 
         self.artist = str(raw_input('Artist Name? '))
@@ -148,143 +152,99 @@ def dumper(artist='', track='', num=1):
             print(i, t['artists'][0]['name'], t['name'])
             tids.append(t['uri'])
                 
-            
-        start = time.time()
-        #import pdb; pdb.set_trace()
+
         features = sp.audio_features(tids)
         #import pdb; pdb.set_trace()
-        delta = time.time() - start
+
         #print("Loaded '%s' features in %s minutes")
-        data = {}
-        
+
+        ar = t['artists'][0]['name']
+        ar = ar.encode('utf-8') 
+        tr = t['name'].encode('utf-8')
+        featured_artists = []
+        track_popularity = t['popularity']
         for feature in features:
+            #import pdb; pdb.set_trace()
+#            data[u'feature'] = json.dumps(feature, indent=4)
+            #import pdb; pdb.set_trace()
+#            analysis = sp._get(feature['analysis_url'])
             
-            data[u'feature'] = json.dumps(feature, indent=4)
-            #import pdb; pdb.set_trace()
-            #analysis = sp._get(feature['analysis_url'])
-            #import pdb; pdb.set_trace()
+            analysis = sp._get(feature[u'analysis_url'])
+            album = results['tracks']['items'][0]['album'][u'name']
+            
             #data['analysis'] = json.dumps(analysis, indent=4)
-            data[u'name'] = json.dumps(t['name'], indent=4) # track name
-           
-            data[u'artist'] = json.dumps(t['artists'][0]['name'])
-            a = data['artist'].encode('utf-8') 
-            t = data['name'].encode('utf-8')
-            track_title = '{}'.format(a)+'_'+'{}'.format(t)
-#            final = {u'track_title':track_title, u'feature':feature,
-#                         u'analysis':analysis}
-            print track_title
+#            data[u'name'] = json.dumps(t['name'], indent=4) # track name
+            queryed = sp._get(results['tracks']['items'][0]['album']['artists'][0][u'href'])
+            
+            genres = queryed[u'genres']
+            artist_popularity = queryed[u'popularity']
+            explicit = t['explicit']
+            followers = queryed['followers']['total']
+            
+            print ar+' has '+str(followers)+ ' followers, and has a '+str(artist_popularity),
+            print tr + ' got a '+ str(track_popularity),
             #import pdb; pdb.set_trace()
-            return data
-            
+#            data[u'artist'] = json.dumps(t['artists'][0]['name'])
 
-def dumper_artist(artist='', num=50):
-
-    time.clock()
-    g = grabber(artist=artist, num=num)
-    #import pdb; pdb.set_trace()
-    # Set Destination folder for analysis    
-    artist_track_results = []
-    
-    q = Query(artist, '', num)
-    
-    # get query results from Query object
-    results = g
-    
-    # for each of num tracks
-    if results:
-        tids = []
-        for i, t in enumerate(results['tracks']['items']):
-            #import pdb; pdb.set_trace()
-            featured_artists = None
-#                if type(t)==type(dict()):
-#                
-#                    #artist = t['artists']['name']
-            # if more than 1 artist
-            if type(t['artists'])==type(dict()):
-                artist = t['artists']['name']
-                
-            # if 1 artist   
-            else:
-                if type(t)==type(dict()):
-                    artistry = t['artists']
-                    
-                    # for multiple singers
-                    for k,singer in enumerate(artistry):
-                        if artist in artistry[k]:
-                            # Set featured artists
-                            featured_artists = artistry
-                            artist = t['artists'][k]['name']
-                        else:
-                            # Set main artist
-                            artist = t['artists'][0]['name']
             
-            # Set name of track
-            t_name = results['tracks']['items'][i]['name']
-            name = artist
-            print i, name
-
-            # Set data dictionary to be encoded to JSON
-            data = {}                    
-            a = artist.encode('utf-8') 
-            tr = t_name.encode('utf-8')
-            f = featured_artists
+            for singer in results['tracks']['items'][0][u'artists']:
+                if ar not in singer['name']:
+                    featured_artists.append(singer['name'])
             
-            # featured artist title naming
-            if f:
-                track_title = '{}'.format(a)+'_'+'{}'.format(f)+' '+'{}'.format(tr)
-            else:
-                track_title = '{}'.format(a)+'_'+'{}'.format(f)+' '+'{}'.format(tr)
-                
-            # Set title as a track title string
-            data[u'track_title'] = '{}'.format(track_title)
-            
-            # set track id for feature search
-            tids.append(t['id'])
-            #import pdb; pdb.set_trace()
-            # Query features
-
-
-            #import pdb; pdb.set_trace()
-            features = sp.audio_features(tids)
-            
-            for feature in features:
+            if "(" in tr:
+                new = tr.partition(" (")
+                feats = new[2]
+                feats = feats.strip(" )")
+                feats = feats.strip("feat. ")
+                featured_artists.append(feats)
                 #import pdb; pdb.set_trace()
-                data[u'feature'] = json.dumps(feature, indent=4)
-                analysis = sp._get(feature['analysis_url'])
-        
-                data[u'analysis'] = json.dumps(analysis, indent=4)
-                #import pdb; pdb.set_trace()
-        
-                data[u'track_title'] =  track_title
-            #import pdb; pdb.set_trace()
-                    #print data
-            with open('{}'.format(track_title)+'.json', 'w') as fp:
-                import pdb; pdb.set_trace()
-                fp.write(json.dumps(data), indent=4)
-                        
-            artist_track_results.append(data)
-            print a, tr, f
+#            images = feat_artists[u'images']
+#            track_title = '{}'.format(a)+'_'+'{}'.format(t)
+        final = {u'album':album, u'artist':ar, u'featured_artists': featured_artists, u'track':tr, 
+        u'popularity': track_popularity, u'genres': genres, u'artist_popularity': artist_popularity, u'explicit': explicit,
+        u'feature':feature, u'analysis':analysis}
+        #print featured_artists
+        #import pdb; pdb.set_trace()
 
-            #import pdb; pdb.set_trace()
-         
-    print 'Analysis took', time.clock()                
-#    return [artist, artist_track_results]
-                    
-#Executes Genius Operation
+        return final
+
 def runner(artist='', track=''):
 
     search_url = base_url + "/search"
     response = None
     data = None
     #title = track.split('_')[-1]; names = None
-    featured_artists = None
+    featured_artist = None
+    featured = None
     artist_choice = artist; track_choice = track
-    print artist_choice, track_choice
+    #print artist_choice, track_choice
+    
 
+    # Manual Override
+#    artist_choice = "21 savage & metro boomin"; track_choice = "x"
+    # Manual Override
+    
+
+        
+    if '-' in track:
+        extras = track_choice.partition(' -')
+        track_choice = extras[0]
+        featured = extras[2]
+        print artist, track_choice, "featured", featured
+    if '(' in track:
+        #import pdb; pdb.set_trace()
+        extras = track_choice.partition(' (')
+        track_choice = extras[0]
+        featured_artist = '('+extras[2]
+        print artist, track_choice, "featuring", featured
+        
+    if '21 savage' in artist.lower():
+        artist_choice = '21 savage & metroboomin'
+        
     n = None
     data = {'q': artist_choice+' '+track_choice}
     response = requests.get(search_url, data=data, headers=headers) 
-    print data, response==True
+    #print data, response==True
     
     if not response:
         try:
@@ -294,7 +254,7 @@ def runner(artist='', track=''):
             
             byte = e[1]
             if byte in artist:
-                import pdb; pdb.set_trace()
+                #import pdb; pdb.set_trace()
                 artist_choice = unidecode(byte.decode('utf-8'))
                 print artist_choice,
         
@@ -314,9 +274,9 @@ def runner(artist='', track=''):
 
     data = {'q': artist_choice+' '+track_choice}
     response = requests.get(search_url, data=data, headers=headers)
-    print data, response==True
+    #print data, response==True
 
-    print artist_choice, track_choice
+    #print artist_choice, track_choice
 
     artists = string.split(artist_choice, ' ', 1)
 #            tracks = string.split(track_choice, ' ', 1)
@@ -336,7 +296,7 @@ def runner(artist='', track=''):
 
     data = {'q': artist_choice+' '+track_choice}
     response = requests.get(search_url, data=data, headers=headers)
-    print data, response==True
+    #print data, response==True
     
     if not response:
     
@@ -358,7 +318,7 @@ def runner(artist='', track=''):
             
     data = {'q': artist_choice+' '+track_choice}
     response = requests.get(search_url, data=data, headers=headers) 
-    print data, response==True 
+    #print data, response==True 
     
     if not response:
         for i,word in enumerate(artists):
@@ -382,7 +342,7 @@ def runner(artist='', track=''):
     #***************TO DO*****************************************
     # Check the other artist on the track if not response:
     #***************TO DO*****************************************  
-    print data, response==True, '\n'             
+    #print data, response==True, '\n'             
     if not response:
         artist_choice = artist
    
@@ -421,29 +381,29 @@ def runner(artist='', track=''):
             if artist_choice.lower() in artist_listings.lower() and track_choice.lower() in track_listings.lower():
                 #import pdb; pdb.set_trace()
                 song_info = hit
-                print "artist and track matched"
+                print "artist and track matched",
                 break
             
      
             elif track_choice.lower() in track_listings.lower():
                 song_info = hit
-                print "track matched"
+                print "track matched",
                 break
             
             elif artist_choice.lower() in artist_listings.lower(): # and "remastered" in  track_listings.lower()
                 song_info = hit
-                print "artist matched"
+                print "artist matched",
                 break
             
             elif "-" in track_choice:
                 for word in track_choice.partition(" "):
                     if word in artist_listings:
                         song_info = hit
-                        print "artist - track matched"
+                        print "artist - track matched",
                         break
                 
             else:
-                print "match"
+                print "match",
 #                print "go to azlyrics"
                 song_info = hit
 #                print "No match"
@@ -453,198 +413,11 @@ def runner(artist='', track=''):
         #import pdb;pdb.set_trace()
         song_api_path = song_info["result"]["api_path"]
         l = lyrics_from_song_api_path(song_api_path)
+        for line in l:
+            print line,
         #import pdb;pdb.set_trace()
-        return l
+        return [l, featured_artist]
     
     else:
-        print "Couldn't Find The Lyrics"
-        
-def runner_artist(artist='', track=''):
+        print "Couldn't Find The Lyrics"           
 
-    search_url = base_url + "/search"
-    response = None
-    data = None
-    #title = track.split('_')[-1]; names = None
-    featured_artists = None
-    artist_choice = artist; track_choice = track
-    print artist_choice, track_choice
-
-    n = None
-    data = {'q': artist_choice+' '+track_choice}
-    response = requests.get(search_url, data=data, headers=headers) 
-    print data, response==True
-    if not response:
-        try:
-            artist_choice = artist.encode('utf-8')
-
-        except UnicodeDecodeError as e:
-            
-            byte = e[1]
-            if byte in artist:
-                #import pdb; pdb.set_trace()
-                artist_choice = unidecode(byte.decode('utf-8'))
-                print artist_choice,
-        
-        #import pdb; pdb.set_trace()
-        track_choice = unidecode(track.decode('utf-8'))
-        choices = track_choice.split(' ')
-        new = choices
-        for i,number in enumerate(choices): 
-            
-            for j,letter in enumerate(number):
-                if letter not in string.digits and letter not in string.ascii_letters:
-                    new.append(string.replace(number, letter, ''))
-                    n=i
-        if n:
-            
-            track_choice = new[n:]
-
-    data = {'q': artist_choice+' '+track_choice}
-    response = requests.get(search_url, data=data, headers=headers)
-    print data, response==True
-
-    print artist_choice, track_choice
-
-    artists = string.split(artist_choice, ' ', 1)
-#            tracks = string.split(track_choice, ' ', 1)
-    parens_track = track_choice.partition("(") 
-    parens_artist = artist_choice.partition("(")
-    bracket_track = track_choice.partition("[") 
-    bracket_artist = artist_choice.partition("[")
-    
-    if "(" in track_choice:
-        parens = parens_track
-        track_choice = parens[0]
-        track_choice = track_choice.rstrip()
-    if '[' in track_choice: 
-        brackets = bracket_track
-        track_choice = brackets[0]
-        track_choice = track_choice.rstrip()
-
-    data = {'q': artist_choice+' '+track_choice}
-    response = requests.get(search_url, data=data, headers=headers)
-    print data, response==True
-    
-    if not response:
-    
-        remix = 'remix'
-        for result in track_choice:
-            if remix.lower() in track_choice.lower():
-                track_choice = track_choice.lower().partition(remix.lower())[0]
-            
-            elif remix.upper() in track_choice.upper():
-                track_choice = track_choice.upper().partition(remix.upper())[0]
-                
-            elif remix.capitalize() in track_choice.capitalize():
-                track_choice = track_choice.capitalize().partition(remix.capitalize())[0]
-                
-            if '-' in track_choice:
-                choices = track_choice.partition('-')
-                track_choice = choices[0]
-                track_choice = track_choice.rstrip()
-            
-    data = {'q': artist_choice+' '+track_choice}
-    response = requests.get(search_url, data=data, headers=headers) 
-    print data, response==True 
-    
-    if not response:
-        for i,word in enumerate(artists):
-            if string.istitle(word):
-                artist_choice = string.replace(artist, word, word.lower())
-                data = {'q': artist_choice+' '+track_choice}
-                response = requests.get(search_url, data=data, headers=headers)
-                #import pdb; pdb.set_trace()
-            elif string.islower(word):
-                artist_choice = string.replace(artist_choice, word, word.capitalize())
-                data = {'q': artist_choice+' '+track_choice}
-                response = requests.get(search_url, data=data, headers=headers)
-                #import pdb; pdb.set_trace()
-            else:
-                artist_choice = string.replace(artist, word, word.lower())
-                data = {'q': artist_choice+' '+track_choice}
-                response = requests.get(search_url, data=data, headers=headers)
- 
-    data = {'q': artist_choice+' '+track_choice}
-    response = requests.get(search_url, data=data, headers=headers)
-    
-    print data, response==True, '\n'             
-    if not response:
-        artist_choice = artist
-   
-    data = {'q': artist_choice+' '+track_choice}
-    response = requests.get(search_url, data=data, headers=headers)     
-    
-#Related Artists in () or []
-#    if not response:
-#        for word in track_choice.partition('('):
-#            if artist in word:
-#                artist_choice = artist
-#                
-#    data = {'q': artist_choice+' '+track_choice}
-#    response = requests.get(search_url, data=data, headers=headers)
-#    print data, response==True 
-#            
-#    if not response:
-#        for word in track_choice.partition('['):
-#            if artist in word:
-#                artist_choice = artist
-#                
-#    data = {'q': artist_choice+' '+track_choice}
-#    response = requests.get(search_url, data=data, headers=headers)
-#    print data, response==True
-    
-    # Need to handle multiple artists in track and artist         
-    json = response.json()
-    song_info = None
-    
-    if json:
-        for hit in json["response"]["hits"]:
-            
-            artist_listings = (hit["result"]["primary_artist"]["name"]).encode('utf-8')
-            track_listings = unidecode(hit["result"]['full_title'])
-            #import pdb; pdb.set_trace()
-            if artist_choice.lower() in artist_listings.lower() and track_choice.lower() in track_listings.lower():
-                #import pdb; pdb.set_trace()
-                song_info = hit
-                print "artist and track matched"
-                break
-            
-     
-            elif track_choice.lower() in track_listings.lower():
-                song_info = hit
-                print "track matched"
-                break
-            
-            elif artist_choice.lower() in artist_listings.lower(): # and "remastered" in  track_listings.lower()
-                song_info = hit
-                print "artist matched"
-                break
-            
-            elif "-" in track_choice:
-                for word in track_choice.partition(" "):
-                    if word in artist_listings:
-                        song_info = hit
-                        print "artist - track matched"
-                        break
-                
-            else:
-                print "go to azlyrics"
-                song_info = hit
-                print "No match"
-                break
-    
-    if song_info:
-        #import pdb;pdb.set_trace()
-        song_api_path = song_info["result"]["api_path"]
-        l = lyrics_from_song_api_path(song_api_path)
-        #import pdb;pdb.set_trace()
-        return l
-    
-    else:
-        print "Couldn't Find The Lyrics"
-
-        
-
-
-
-        
