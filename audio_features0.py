@@ -7,6 +7,7 @@ Created on Mon Mar 06 00:20:05 2017
 from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
+import time
 import json
 import string
 import spotipy
@@ -14,18 +15,23 @@ import requests
 from spotipy.oauth2 import SpotifyClientCredentials
 import sys
 from unidecode import unidecode
+from audio_features2 import runner
+from pymongo.mongo_client import MongoClient
 
-from audio_features2 import runner 
+URI = "mongodb://MusicMind:Dsam456$%^@metamind-shard-00-00-edm1t.mongodb.net:27017,metamind-shard-00-01-edm1t.mongodb.net:27017,metamind-shard-00-02-edm1t.mongodb.net:27017/MetaMind?ssl=true&replicaSet=MetaMind-shard-0&authSource=admin"
+client = MongoClient(URI)
+db = client['MetaMind']
+posts = db.posts
+
 
 
 #Genius
 base_url = "https://api.genius.com"
-
-headers = {'Authorization': 'Bearer -f1FowZVoajVSULxNXkqvtwCzwrxlkWqtozx7cN_aP3CjHGhji6K4ySWiJOj1IH1'}
+headers = {'Authorization': 'Bearer zoQKrP1yTyzy04I_DaXzOSqWXPR32YPXyolLER1rCAvqxefu2Zcea-pqs5REBixt'}
 
 #Spotify#
 SPOTIPY_CLIENT_ID = "3a883c6b1fc4405ba45608df5e60e09f"
-SPOTIPY_CLIENT_SECRET = "9d9f70d6ff864760a2503b6e8b622c09"
+SPOTIPY_CLIENT_SECRET = "eb76bde0a9924f9eb109bcefa37400fc"
 
 client_credentials_manager = SpotifyClientCredentials(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -38,6 +44,8 @@ sp.trace=False
 #
 #s = sp.recommendations(seed_artists=recs, seed_genres=['hip-hop'], limit=20)
 #import pdb;pdb.set_trace()
+
+
 # Search class
 class Query:
     num = 0
@@ -94,6 +102,7 @@ def lyrics_from_song_api_path(song_api_path):
     #import pdb; pdb.set_trace()
     return [title, lyrics]
 
+
 #data analysis package
 def framer(lyric):
     h = np.array(lyric.split(' '))
@@ -106,76 +115,67 @@ def framer(lyric):
 def grabber(artist='', track='', num=0):
        
     q = Query(artist, track, num)
-    #q.ask()
+
     track_results = None
     name_results = None
-    #import pdb; pdb.set_trace()
+
     if q.artist!='' and q.track!='':
-        #import pdb; pdb.set_trace()
-        #name_results = sp.search(q=str(q.artist), limit=q.num)
+
         track_results = sp.search(q=str(q.track), limit=q.num)
         return track_results
     elif q.artist!='':
-        #import pdb; pdb.set_trace()
+
         name_results = sp.search(q=str(q.artist), limit=q.num)
         return name_results
     
     else:
-        #import pdb; pdb.set_trace()
+
         name_results = sp.search(q=str(q.artist), limit=1)
         return name_results
-    
-def dumper_artist(artist='', num=50):  
+
+# Query spotify and Genius for Metadata and lyrics -Final API to be developed with Spotify Approval   
+def dumper_artist(artist='', num=50):
+    time.clock()
     g = grabber(artist=artist, num=num)
-    
-    # Set Destination folder for analysis    
-    # get query results from Query object
 
-    final = []
     if g:
-        tids = []
+        
         for results in g['tracks']['items']:
-            lyric = runner(artist=artist, track=results['name']) 
+            #track_json = json                                   # Instantiate JSON if needed 
+            lyric = runner(artist=artist, track=results['name']) # instantiate lyrics
 
-            tids.append(results['uri']) 
+            ar = results['artists'][0]['name']                   # set artist from spotify       
+            ar = ar.encode('utf-8')                              # Fix Encoding                 - may need work
+            tr = results['name']                                 # set track from spotify
+            tr = tr.encode('utf-8')
+            featured_artists = []                                # start featured artists list
+            track_popularity = results['popularity']             # Get track popularity
+            features = sp.audio_features([results['uri']])       # Get audio features
             
-            ar = results['artists'][0]['name']
-            ar = ar.encode('utf-8') 
-            tr = results['name'].encode('utf-8')
-            featured_artists = []
-            track_popularity = results['popularity']
+            album = results['album']['name']                     # Get album
+
+            queryed = sp._get(results['album']['artists'][0][u'href']) # Query the other related artists
             
-            features = sp.audio_features(tids)
+                             #*************** TO BE DEVELOPED *******************
+#            genres = results[u'genres']
+            genres = queryed[u'genres']                                 # Genres
+
+            artist_popularity = queryed[u'popularity']
+            explicit = results['explicit']
+            
+#            followers = results[u'followers'][u'total']                       # maybe later
+            followers = queryed['followers']['total']
+            
+            print ar + ' has '+str(followers)+' followers, is rated '+str(artist_popularity)+' and their track, '+ tr + ' got a '+ str(track_popularity),
+            print ', and contains genres: ', genres,
+            
             for i, feature in enumerate(features):
-                #import pdb; pdb.set_trace()
-    #            data[u'feature'] = json.dumps(feature, indent=4)
-                #import pdb; pdb.set_trace()
-    #            analysis = sp._get(feature['analysis_url'])
                 
                 analysis = sp._get(feature[u'analysis_url'])
- 
-                #import pdb; pdb.set_trace()
-                album = results['album']['name']
 
-                #data['analysis'] = json.dumps(analysis, indent=4)
-    #            data[u'name'] = json.dumps(t['name'], indent=4) # track name
-                queryed = sp._get(results['album']['artists'][0][u'href'])
-                
-                genres = queryed[u'genres']
-
-                artist_popularity = queryed[u'popularity']
-                explicit = results['explicit']
-                followers = queryed['followers']['total']
-                
-                print ar+' has '+str(followers)+ ' followers, and has a '+str(artist_popularity)+"/100"
-                print tr + ' got a '+ str(track_popularity)+"/100"
-                #import pdb; pdb.set_trace()
-    #            data[u'artist'] = json.dumps(t['artists'][0]['name'])
-    
-                
-                for singer in results['artists']:
-                    if ar not in singer['name']:
-                        featured_artists.append(singer['name'])
+                for singer in results[u'artists']:
+                    if ar not in singer[u'name']:
+                        featured_artists.append(singer[u'name'])
                 
                 if "(" in tr:
                     new = tr.partition(" (")
@@ -183,16 +183,29 @@ def dumper_artist(artist='', num=50):
                     feats = feats.strip(" )")
                     feats = feats.strip("feat. ")
                     featured_artists.append(feats)
-                    #import pdb; pdb.set_trace()
-    #            images = feat_artists[u'images']
-    #            track_title = '{}'.format(a)+'_'+'{}'.format(t)
-                tracking = {u'lyrics': lyric, u'album':album, u'artist':ar, u'featured_artists': featured_artists, u'track':tr, 
-                         u'popularity': track_popularity, u'genres': genres, u'artist_popularity': artist_popularity, u'explicit': explicit,
-                         u'feature':feature, u'analysis':analysis}
-            final.append(tracking)
-                 
-        #import pdb; pdb.set_trace()       
-    return final
+
+            tracking = {u'lyrics': lyric, u'album':album, u'artist':ar, u'featured_artists': featured_artists, 
+                        u'track':tr, u'popularity': track_popularity, u'genres': genres, u'followers': followers, u'followers': followers, 
+                        u'artist_popularity': artist_popularity, u'explicit': explicit, u'feature':feature, u'analysis':analysis}
+        
+             
+     
+            u_title = artist+' - '+album+' - '+tr
+            for x in u_title:
+                if x in '*()"|?\/:<>': 
+                    u_title = string.replace(u_title, x, '')
+                    
+            #file_name = u_title
+            ##################   MONGO DB ###################
+            
+            post_id = posts.insert_one(tracking).inserted_id
+            print "mongo post id:", post_id,
+            # We can save this somewhere else for reference
+                                  
+#            with open(file_name+'_'+post_id+'.json', 'w') as fp:
+#                fp.write((track_json.dumps(tracking, indent=4)))
+                    
+    
     
     
             

@@ -25,11 +25,11 @@ from unidecode import unidecode
 #Genius
 base_url = "https://api.genius.com"
 
-headers = {'Authorization': 'Bearer -f1FowZVoajVSULxNXkqvtwCzwrxlkWqtozx7cN_aP3CjHGhji6K4ySWiJOj1IH1'}
+headers = {'Authorization': 'Bearer zoQKrP1yTyzy04I_DaXzOSqWXPR32YPXyolLER1rCAvqxefu2Zcea-pqs5REBixt'}
 
 #Spotify#
 SPOTIPY_CLIENT_ID = "3a883c6b1fc4405ba45608df5e60e09f"
-SPOTIPY_CLIENT_SECRET = "9d9f70d6ff864760a2503b6e8b622c09"
+SPOTIPY_CLIENT_SECRET = "eb76bde0a9924f9eb109bcefa37400fc"
 
 client_credentials_manager = SpotifyClientCredentials(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -223,9 +223,7 @@ def runner(artist='', track=''):
     # Manual Override
 #    artist_choice = "21 savage & metro boomin"; track_choice = "x"
     # Manual Override
-    
 
-        
     if '-' in track:
         extras = track_choice.partition(' -')
         track_choice = extras[0]
@@ -237,7 +235,8 @@ def runner(artist='', track=''):
         track_choice = extras[0]
         featured_artist = '('+extras[2]
         print artist, track_choice, "featuring", featured
-        
+    
+         
     if '21 savage' in artist.lower():
         artist_choice = '21 savage & metroboomin'
         
