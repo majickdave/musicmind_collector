@@ -190,10 +190,10 @@ def dumper_artist(artist='', num=50):
         
              
      
-            u_title = artist+' - '+album+' - '+tr
-            for x in u_title:
-                if x in '*()"|?\/:<>': 
-                    u_title = string.replace(u_title, x, '')
+#            u_title = artist+' - '+album+' - '+tr
+#            for x in u_title:
+#                if x in '*()"|?\/:<>': 
+#                    u_title = string.replace(u_title, x, '')
                     
             #file_name = u_title
             ##################   MONGO DB ###################
