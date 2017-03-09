@@ -15,10 +15,10 @@ import requests
 from spotipy.oauth2 import SpotifyClientCredentials
 import sys
 from unidecode import unidecode
-from audio_features2 import runner
+from audio_features_local import runner, dumper
 from pymongo.mongo_client import MongoClient
 
-URI = "mongodb://MusicMind:Dsam456$%^@metamind-shard-00-00-edm1t.mongodb.net:27017,metamind-shard-00-01-edm1t.mongodb.net:27017,metamind-shard-00-02-edm1t.mongodb.net:27017/MetaMind?ssl=true&replicaSet=MetaMind-shard-0&authSource=admin"
+URI = "mongodb://MusicMind:Dsam456$%^@features-shard-00-00-edm1t.mongodb.net:27017,features-shard-00-01-edm1t.mongodb.net:27017,features-shard-00-02-edm1t.mongodb.net:27017/features?ssl=true&replicaSet=features-shard-0&authSource=admin"
 client = MongoClient(URI)
 db = client['MetaMind']
 posts = db.posts
@@ -27,11 +27,11 @@ posts = db.posts
 
 #Genius
 base_url = "https://api.genius.com"
-headers = {'Authorization': 'Bearer zoQKrP1yTyzy04I_DaXzOSqWXPR32YPXyolLER1rCAvqxefu2Zcea-pqs5REBixt'}
+headers = {'Authorization': 'Bearer tQoh0aD9H5Od9EmoORVzKkki48MEG4K6Kyy8zCQvO8lq1Rjx1IVqEqUQMUgqJTHv'}
 
 #Spotify#
 SPOTIPY_CLIENT_ID = "3a883c6b1fc4405ba45608df5e60e09f"
-SPOTIPY_CLIENT_SECRET = "eb76bde0a9924f9eb109bcefa37400fc"
+SPOTIPY_CLIENT_SECRET = "3168b907abf54925b8e482797f0eb718"
 
 client_credentials_manager = SpotifyClientCredentials(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -141,55 +141,65 @@ def dumper_artist(artist='', num=50):
     if g:
         
         for results in g['tracks']['items']:
-            #track_json = json                                   # Instantiate JSON if needed 
-            lyric = runner(artist=artist, track=results['name']) # instantiate lyrics
-
-            ar = results['artists'][0]['name']                   # set artist from spotify       
-            ar = ar.encode('utf-8')                              # Fix Encoding                 - may need work
-            tr = results['name']                                 # set track from spotify
-            tr = tr.encode('utf-8')
-            featured_artists = []                                # start featured artists list
-            track_popularity = results['popularity']             # Get track popularity
-            features = sp.audio_features([results['uri']])       # Get audio features
-            
-            album = results['album']['name']                     # Get album
-
-            queryed = sp._get(results['album']['artists'][0][u'href']) # Query the other related artists
-            
-                             #*************** TO BE DEVELOPED *******************
-#            genres = results[u'genres']
-            genres = queryed[u'genres']                                 # Genres
-
-            artist_popularity = queryed[u'popularity']
-            explicit = results['explicit']
-            
-#            followers = results[u'followers'][u'total']                       # maybe later
-            followers = queryed['followers']['total']
-            
-            print ar + ' has '+str(followers)+' followers, is rated '+str(artist_popularity)+' and their track, '+ tr + ' got a '+ str(track_popularity),
-            print ', and contains genres: ', genres,
-            
-            for i, feature in enumerate(features):
+            #track_json = json
+            try:                                   # Instantiate JSON if needed 
+                lyric = runner(artist=artist, track=results['name']) # instantiate lyrics
+    
+                ar = results['artists'][0]['name']                   # set artist from spotify       
+                ar = ar.encode('utf-8')                              # Fix Encoding                 - may need work
+                tr = results['name']                                 # set track from spotify
+                tr = tr.encode('utf-8')
+                featured_artists = []                                # start featured artists list
+                track_popularity = results['popularity']             # Get track popularity
+                features = sp.audio_features([results['uri']])       # Get audio features
                 
-                analysis = sp._get(feature[u'analysis_url'])
-
-                for singer in results[u'artists']:
-                    if ar not in (singer[u'name']).encode('utf-8'):
-                        featured_artists.append((singer[u'name']).encode('utf-8'))
+                album = results['album']['name']                     # Get album
+    
+                queryed = sp._get(results['album']['artists'][0][u'href']) # Query the other related artists
                 
-                if "(" in tr:
-                    new = tr.partition(" (")
-                    feats = new[2]
-                    feats = feats.strip(" )")
-                    feats = feats.strip("feat. ")
-                    featured_artists.append(feats)
-
-            tracking = {u'lyrics': lyric, u'album':album, u'artist':ar, u'featured_artists': featured_artists, 
-                        u'track':tr, u'popularity': track_popularity, u'genres': genres, u'followers': followers, u'followers': followers, 
-                        u'artist_popularity': artist_popularity, u'explicit': explicit, u'feature':feature, u'analysis':analysis}
+                                 #*************** TO BE DEVELOPED *******************
+    #            genres = results[u'genres']
+                genres = queryed[u'genres']                                 # Genres
+    
+                artist_popularity = queryed[u'popularity']
+                explicit = results['explicit']
+                
+    #            followers = results[u'followers'][u'total']                       # maybe later
+                followers = queryed['followers']['total']
+                
+                print ar + ' has '+str(followers)+' followers, is rated '+str(artist_popularity)+' and their track, '+ tr + ' got a '+ str(track_popularity),
+                print ', and contains genres: ', genres,
+                print features,
+                
+                for i, feature in enumerate(features):
+                    
+                    analysis = sp._get(feature[u'analysis_url'])
+                    # Send to Hadoop, or Big Store
+    
+                    for singer in results[u'artists']:
+                        if ar not in (singer[u'name']).encode('utf-8'):
+                            featured_artists.append((singer[u'name']).encode('utf-8'))
+                    
+                    if "(" in tr:
+                        new = tr.partition(" (")
+                        feats = new[2]
+                        feats = feats.strip(" )")
+                        feats = feats.strip("feat. ")
+                        featured_artists.append(feats)
+    
+                tracking = {u'lyrics': lyric, u'album':album, u'artist':ar, u'featured_artists': featured_artists, 
+                            u'track':tr, u'popularity': track_popularity, u'genres': genres, u'followers': followers, u'followers': followers, 
+                            u'artist_popularity': artist_popularity, u'explicit': explicit, u'feature':feature} 
+            except ValueError as e:
+                print e,
+                dumped = dumper(artist=ar, track=tr, num=1)
+                tracking = dumped
+                pass
+                
+            # u'analysis':analysis
         
              
-     
+            #################################################
 #            u_title = artist+' - '+album+' - '+tr
 #            for x in u_title:
 #                if x in '*()"|?\/:<>': 
