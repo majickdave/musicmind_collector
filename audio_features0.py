@@ -174,8 +174,8 @@ def dumper_artist(artist='', num=50):
                 analysis = sp._get(feature[u'analysis_url'])
 
                 for singer in results[u'artists']:
-                    if ar not in singer[u'name']:
-                        featured_artists.append(singer[u'name'])
+                    if ar not in (singer[u'name']).encode('utf-8'):
+                        featured_artists.append((singer[u'name']).encode('utf-8'))
                 
                 if "(" in tr:
                     new = tr.partition(" (")
