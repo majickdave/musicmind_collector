@@ -192,10 +192,8 @@ def dumper_artist(artist='', num=50):
                             u'artist_popularity': artist_popularity, u'explicit': explicit, u'feature':feature} 
             except ValueError as e:
                 print e,
-                dumped = dumper(artist=ar, track=tr, num=1)
-                tracking = dumped
-                pass
-                
+                dumper(artist=ar, track=tr, num=1)
+  
             # u'analysis':analysis
         
              
@@ -207,9 +205,12 @@ def dumper_artist(artist='', num=50):
                     
             #file_name = u_title
             ##################   MONGO DB ###################
-            
-            post_id = posts.insert_one(tracking).inserted_id
-            print "mongo post id:", post_id,
+            try:
+                post_id = posts.insert_one(tracking).inserted_id
+                print "mongo post id:", post_id,
+            except TypeError as e:
+                print e,
+                dumper(artist=ar, track=tr, num=1)
             # We can save this somewhere else for reference
                                   
 #            with open(file_name+'_'+post_id+'.json', 'w') as fp:
