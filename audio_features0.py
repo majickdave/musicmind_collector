@@ -140,7 +140,7 @@ def dumper_artist(artist='', num=50):
 
     if g:
         
-        for results in g['tracks']['items']:
+        for i, results in enumerate(g['tracks']['items']):
             #track_json = json
             try:                                   # Instantiate JSON if needed 
                 lyric = runner(artist=artist, track=results['name']) # instantiate lyrics
@@ -205,12 +205,11 @@ def dumper_artist(artist='', num=50):
                     
             #file_name = u_title
             ##################   MONGO DB ###################
-            try:
-                post_id = posts.insert_one(tracking).inserted_id
-                print "mongo post id:", post_id,
-            except TypeError as e:
-                print e,
-                dumper(artist=ar, track=tr, num=1)
+
+            post_id = posts.insert_one(tracking).inserted_id
+            print "mongo post id:", post_id,
+
+
             # We can save this somewhere else for reference
                                   
 #            with open(file_name+'_'+post_id+'.json', 'w') as fp:
