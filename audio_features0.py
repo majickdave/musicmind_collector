@@ -173,8 +173,8 @@ def dumper_artist(artist='', num=50):
                 
                 for i, feature in enumerate(features):
                     
-                    analysis = sp._get(feature[u'analysis_url'])
-                    # Send to Hadoop, or Big Store
+#                   #analysis = sp._get(feature[u'analysis_url'])
+                    #Send to Hadoop, or Big Store
     
                     for singer in results[u'artists']:
                         if ar not in (singer[u'name']).encode('utf-8'):
@@ -205,9 +205,12 @@ def dumper_artist(artist='', num=50):
                     
             #file_name = u_title
             ##################   MONGO DB ###################
-
-            post_id = posts.insert_one(tracking).inserted_id
-            print "mongo post id:", post_id,
+            try:
+                post_id = posts.insert_one(tracking).inserted_id
+                print "mongo post id:", post_id,
+            except KeyError as e:
+                print "Duplicate!",
+                pass
 
 
             # We can save this somewhere else for reference
