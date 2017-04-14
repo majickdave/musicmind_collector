@@ -8,14 +8,19 @@ Created on Thu Mar 09 07:25:30 2017
 import pprint
 from pymongo.mongo_client import MongoClient
 
-URI = "mongodb://MusicMind:Dsam456$%^@metamind-shard-00-00-edm1t.mongodb.net:27017,metamind-shard-00-01-edm1t.mongodb.net:27017,metamind-shard-00-02-edm1t.mongodb.net:27017/MetaMind?ssl=true&replicaSet=MetaMind-shard-0&authSource=admin"
+
+URI = "mongodb://MusicMind:LHBXWnYqs29lNUX6@features-shard-00-00-edm1t.mongodb.net:27017,features-shard-00-01-edm1t.mongodb.net:27017,features-shard-00-02-edm1t.mongodb.net:27017/features?ssl=true&replicaSet=features-shard-0&authSource=admin"
 client = MongoClient(URI)
 db = client['MetaMind']
 posts = db.posts
 
 
 
-collection = db.test_collection
+collection = posts.find_one({'artist': 'Future'})
 
-pprint.pprint(posts.find_one())
+pprint.pprint(collection)
+
+
+
+
 
