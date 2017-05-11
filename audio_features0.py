@@ -72,7 +72,7 @@ class Query:
 
     @classmethod
     def query_album(self, artist='', albumName='', album=True, num=10):
-        return sp.search(artist, type='album', limit=num)      
+        return sp.search(artist+' '+albumName, type='album', limit=num)      
 
 
 
@@ -383,13 +383,16 @@ def dumper_album(artist='', album=True, albumName='', num=10):
                     # print analysis
                         # Send to Hadoop, or Big Store
         
-                    tracking = {u'lyrics': lyric, u'album':recordName, u'artist':artist_name, u'featured_artists': featured_artists, 
-                                u'track':track_name, u'popularity': track_popularity, u'genres': genres, 
-                                u'artist_popularity': artist_popularity, u'explicit': explicit, u'feature':features} 
+                    
                 except ValueError as e:
                     print e,
-                    lyric = ''
-                    dumper(artist=ar, track=tr, num=1)
+                    lyric = None
+                    pass
+
+                tracking = {u'lyrics': lyric, u'album':recordName, u'artist':artist_name, u'featured_artists': featured_artists, 
+                                u'track':track_name, u'popularity': track_popularity, u'genres': genres, 
+                                u'artist_popularity': artist_popularity, u'explicit': explicit, u'feature':features} 
+                    #dumper_album(artist=ar, track=tr, num=1)
       
                 # u'analysis':analysis
             
