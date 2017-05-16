@@ -15,14 +15,10 @@ from datetime import datetime
 import urllib
 import string
 
-
+# Change these to match your build path and Spotify User name
+BUILD_PATH = '/Users/majic/NetBeansProjects/OrbPlot/build/classes/data/'
 USERNAME = raw_input('Enter Spotify Username: ')
 # USERNAME = 'majickdave'
-
-URI = "mongodb://MusicMind:6jlewvwvuBVqJls4@features-shard-00-00-edm1t.mongodb.net:27017,features-shard-00-01-edm1t.mongodb.net:27017,features-shard-00-02-edm1t.mongodb.net:27017/features?ssl=true&replicaSet=features-shard-0&authSource=admin"
-client = MongoClient(URI)
-db = client['MetaMind']
-posts = db.posts
 
 #Spotify#
 SPOTIPY_CLIENT_ID = "3a883c6b1fc4405ba45608df5e60e09f"
@@ -33,7 +29,6 @@ userScope = {"account": "user-read-private", "top": "user-top-read", "email": "u
 client_credentials_manager = SpotifyClientCredentials(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 sp.trace=False
-
 
 token = util.prompt_for_user_token(USERNAME, scope=userScope['account'], client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=REDIRECT_URI)
 
@@ -84,7 +79,7 @@ if token:
 
         #import pdb;pdb.set_trace()
 
-        urllib.urlretrieve(track_image_url, '/Users/majic/NetBeansProjects/OrbPlot/build/classes/data/'+"trackID_"+track['id']+'.jpeg')
+        urllib.urlretrieve(track_image_url, BUILD_PATH+"trackID_"+track['id']+'.jpeg')
 
         top_tracks.append({"track_name": track_name, "artist_name" : artist_name, 
         	"album_name": album_name, "track_popularity": track_popularity, "artist_popularity": related_popularity[artist_name],
@@ -101,7 +96,7 @@ json = json
 
 # file_name = USERNAME+str(datetime.now())
 
-with open('/Users/majic/NetBeansProjects/OrbPlot/build/classes/data/'+str(USERNAME)+'_planets.json', 'w') as fp:
+with open(BUILD_PATH+str(USERNAME)+'_planets.json', 'w') as fp:
     fp.write(json.dumps(top_tracks, indent=4))
 
 
