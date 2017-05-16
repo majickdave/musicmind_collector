@@ -5,6 +5,7 @@ Created on Mon Mar 06 00:20:05 2017
 @author: david
 """
 from bs4 import BeautifulSoup
+import webbrowser
 import pandas as pd
 import numpy as np
 import time
@@ -241,6 +242,20 @@ def dumper_track(artist='', track='', num=1):
         
         for i, results in enumerate(g['tracks']['items']):
             #track_json = json
+            #import pdb; pdb.set_trace()
+            preview_url = results['preview_url']
+            track_imageURL = results['album']['images'][0]['url']
+
+            artistURL = sp.artist(results['artists'][0]['id'])
+            artist_imageURL = artistURL['images'][0]['url']
+
+            playURL = results['external_urls']['spotify']
+
+            webbrowser.open_new(artist_imageURL)
+            webbrowser.open_new(track_imageURL)
+            webbrowser.open_new(playURL)
+
+
             try:                                   # Instantiate JSON if needed 
                 lyric = runner(artist=artist, track=results['name']) # instantiate lyrics
 
@@ -277,7 +292,7 @@ def dumper_track(artist='', track='', num=1):
     #                   
                     #Send to Hadoop, or Big Store
 
-                print features, analysis,
+                print features, #analysis,
 
                 for singer in results[u'artists']:
                     if ar not in (singer[u'name']).encode('utf-8'):
@@ -311,9 +326,12 @@ def dumper_track(artist='', track='', num=1):
             try:
                 post_id = posts.insert_one(tracking).inserted_id
                 print "mongo post id:", post_id,
+                #webbrowser.open_new(preview_url)
             except KeyError as e:
                 print "Duplicate!",
                 pass
+
+            
 
 
                 # We can save this somewhere else for reference
