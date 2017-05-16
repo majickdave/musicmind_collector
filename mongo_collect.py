@@ -16,7 +16,7 @@ import urllib
 import string
 
 
-USERNAME = raw_input('Enter Spotify Username:')
+USERNAME = raw_input('Enter Spotify Username: ')
 # USERNAME = 'majickdave'
 
 URI = "mongodb://MusicMind:6jlewvwvuBVqJls4@features-shard-00-00-edm1t.mongodb.net:27017,features-shard-00-01-edm1t.mongodb.net:27017,features-shard-00-02-edm1t.mongodb.net:27017/features?ssl=true&replicaSet=features-shard-0&authSource=admin"
@@ -57,18 +57,18 @@ if token:
         related_popularity = {}
         related_genres = {}
         related_followers = {}
-        for x in [artist_name, track_name, album_name]:
-            	for y in x:
-            		for letter in y:
-		            	if letter in '*()"|?\/:<>': 
-		                	x = string.replace(y, letter, '')
+        # for x in [artist_name, track_name, album_name]:
+        #     	for y in x:
+        #     		for letter in y:
+		      #       	if letter in '*()"|?\/:<>': 
+		      #           	x = string.replace(y, letter, '')
 
         for artist in track['artists']:
         	artist_href = sp.artist(artist['id'])
         	#import pdb;pdb.set_trace()
         	try:
         		image_url = artist_href['images'][0]['url']
-        		urllib.urlretrieve(image_url, '/Users/majic/NetBeansProjects/OrbPlot/build/classes/data/'+artist['id']+'.jpeg')
+        		urllib.urlretrieve(image_url, '/Users/majic/NetBeansProjects/OrbPlot/build/classes/data/'+"artistID_"+artist['id']+'.jpeg')
         	except IOError as e:
         		#print artist['name']
         		#import pdb;pdb.set_trace()
@@ -84,12 +84,12 @@ if token:
 
         #import pdb;pdb.set_trace()
 
-        urllib.urlretrieve(track_image_url, '/Users/majic/NetBeansProjects/OrbPlot/build/classes/data/'+track['id']+'.jpeg')
+        urllib.urlretrieve(track_image_url, '/Users/majic/NetBeansProjects/OrbPlot/build/classes/data/'+"trackID_"+track['id']+'.jpeg')
 
         top_tracks.append({"track_name": track_name, "artist_name" : artist_name, 
         	"album_name": album_name, "track_popularity": track_popularity, "artist_popularity": related_popularity[artist_name],
         	"related_artist_popularity": related_popularity, "features": features, "followers": related_followers[artist_name], 
-            "genres": related_genres[artist_name], "artistID": track['artists'][0], "trackID": track['id']})
+            "genres": related_genres[artist_name], "artistID": track['artists'][0]['id'], "trackID": track['id']})
 
 else:
     print "Can't get token for", username
@@ -101,7 +101,7 @@ json = json
 
 # file_name = USERNAME+str(datetime.now())
 
-with open('/Users/majic/NetBeansProjects/OrbPlot/build/classes/data/planets.json', 'w') as fp:
+with open('/Users/majic/NetBeansProjects/OrbPlot/build/classes/data/'+str(USERNAME)+'_planets.json', 'w') as fp:
     fp.write(json.dumps(top_tracks, indent=4))
 
 
