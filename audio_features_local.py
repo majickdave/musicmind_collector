@@ -395,6 +395,7 @@ def runner(artist='', track=''):
                 #import pdb; pdb.set_trace()
                 song_info = hit
                 print "artist and track matched",
+                print ""
                 break
             
      

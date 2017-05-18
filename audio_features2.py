@@ -29,7 +29,7 @@ headers = {'Authorization': 'Bearer zoQKrP1yTyzy04I_DaXzOSqWXPR32YPXyolLER1rCAvq
 
 #Spotify#
 SPOTIPY_CLIENT_ID = "3a883c6b1fc4405ba45608df5e60e09f"
-SPOTIPY_CLIENT_SECRET = "eb76bde0a9924f9eb109bcefa37400fc"
+SPOTIPY_CLIENT_SECRET = "3168b907abf54925b8e482797f0eb718"
 
 client_credentials_manager = SpotifyClientCredentials(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -200,13 +200,18 @@ def dumper(artist='', track='', num=1):
                 #import pdb; pdb.set_trace()
 #            images = feat_artists[u'images']
 #            track_title = '{}'.format(a)+'_'+'{}'.format(t)
-        final = {u'album':album, u'artist':ar, u'featured_artists': featured_artists, u'track':tr, 
-        u'popularity': track_popularity, u'genres': genres, u'artist_popularity': artist_popularity, u'explicit': explicit,
-        u'feature':feature, u'analysis':analysis}
+            tracking = {u'lyrics': lyric, u'album':album, u'artist':ar, u'featured_artists': featured_artists, 
+                        u'track':tr, u'popularity': track_popularity, u'genres': genres, u'followers': followers, u'followers': followers, 
+                        u'artist_popularity': artist_popularity, u'explicit': explicit, u'feature':feature} 
         #print featured_artists
         #import pdb; pdb.set_trace()
 
-        return final
+        try:
+            post_id = posts.insert_one(tracking).inserted_id
+            print "mongo post id:", post_id,
+        except KeyError as e:
+            print "Duplicate!",
+        pass
 
 def runner(artist='', track=''):
 
