@@ -292,7 +292,8 @@ def dumper_track(artist='', track='', num=1):
     #                   
                     #Send to Hadoop, or Big Store
 
-                print features, #analysis,
+                print features,
+                print analysis,
 
                 for singer in results[u'artists']:
                     if ar not in (singer[u'name']).encode('utf-8'):
