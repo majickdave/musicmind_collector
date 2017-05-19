@@ -408,6 +408,8 @@ def dumper_album(artist='', album=True, albumName='', num=10):
                     lyric = None
                     pass
 
+                print recordName, 
+                
                 tracking = {u'lyrics': lyric, u'album':recordName, u'artist':artist_name, u'featured_artists': featured_artists, 
                                 u'track':track_name, u'popularity': track_popularity, u'genres': genres, 
                                 u'artist_popularity': artist_popularity, u'explicit': explicit, u'feature':features} 

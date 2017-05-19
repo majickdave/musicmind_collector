@@ -98,7 +98,8 @@ def lyrics_from_song_api_path(song_api_path):
     #import pdb; pdb.set_trace(); 
     [h.extract() for h in html('script')]
     #at least Genius is nice and has a tag called 'lyrics'!
-    lyrics = html.find("lyrics").get_text()
+    #import pdb; pdb.set_trace()
+    lyrics = html.find(attrs={"class": "lyrics"}).get_text()
     title = html.find("title").get_text()
     #import pdb; pdb.set_trace()
     return [title, lyrics]
