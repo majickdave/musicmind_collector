@@ -418,14 +418,9 @@ def dumper_album(artist='', album=True, albumName='', num=10):
                 # u'analysis':analysis
             
                  
-                #################################################
-    #            u_title = artist+' - '+album+' - '+tr
-    #            for x in u_title:
-    #                if x in '*()"|?\/:<>': 
-    #                    u_title = string.replace(u_title, x, '')
-                        
-                #file_name = u_title
-                ##################   MONGO DB ###################
+                ################################################
+
+                #################   MONGO DB ###################
                 try:
                     post_id = posts.insert_one(tracking).inserted_id
                     print "mongo post id:", post_id,
@@ -434,6 +429,16 @@ def dumper_album(artist='', album=True, albumName='', num=10):
                     print "Duplicate!",
                     print ''
                     pass
+
+                # tracking[u'analysis'] = analysis
+                # u_title = artist+' - '+album+' - '+tr
+                # for x in u_title:
+                #    if x in '*()"|?\/:<>': 
+                #        u_title = string.replace(u_title, x, '')
+                        
+                # file_name = u_title
+                # with open(file_name+'_'+post_id+'.json', 'w') as fp:
+                #     fp.write((track_json.dumps(tracking, indent=4)))
         
         
                 

@@ -14,6 +14,7 @@ import json
 from datetime import datetime
 import urllib
 import string
+from audio_features_local import runner
 
 # Change these to match your build path and Spotify User name
 BUILD_PATH = '/Users/majic/NetBeansProjects/OrbPlot/build/classes/data/'
@@ -23,7 +24,7 @@ USERNAME = raw_input('Enter Spotify Username: ')
 #Spotify#
 SPOTIPY_CLIENT_ID = "3a883c6b1fc4405ba45608df5e60e09f"
 SPOTIPY_CLIENT_SECRET = "3168b907abf54925b8e482797f0eb718"
-REDIRECT_URI = "http://localhost:8888/"
+REDIRECT_URI = "http://localhost:8888/callback/"
 userScope = {"account": "user-read-private", "top": "user-top-read", "email": "user-read-email"}
 
 client_credentials_manager = SpotifyClientCredentials(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET)
@@ -45,10 +46,13 @@ if token:
         track_name = track['name']
         album_name = track['album']['name']
         artist_url = track['artists'][0]['href']
-
+        
+        
         track_popularity = track['popularity']
         features = sp.audio_features([track['id']])
-
+        
+        analysis = sp.audio_analysis([track['id']])
+        
         related_popularity = {}
         related_genres = {}
         related_followers = {}
@@ -84,7 +88,7 @@ if token:
         top_tracks.append({"track_name": track_name, "artist_name" : artist_name, 
         	"album_name": album_name, "track_popularity": track_popularity, "artist_popularity": related_popularity[artist_name],
         	"related_artist_popularity": related_popularity, "features": features, "followers": related_followers[artist_name], 
-            "genres": related_genres[artist_name], "artistID": track['artists'][0]['id'], "trackID": track['id']})
+            "genres": related_genres[artist_name], "artistID": track['artists'][0]['id'], "trackID": track['id'], "analysis": analysis})
 
 else:
     print "Can't get token for", username
