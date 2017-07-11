@@ -421,6 +421,8 @@ def dumper_album(artist='', album=True, albumName='', num=10):
                 ################################################
 
                 #################   MONGO DB ###################
+
+                #import pdb; pdb.set_trace()
                 try:
                     post_id = posts.insert_one(tracking).inserted_id
                     print "mongo post id:", post_id,
