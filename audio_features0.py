@@ -251,9 +251,9 @@ def dumper_track(artist='', track='', num=1):
 
             playURL = results['external_urls']['spotify']
 
-            webbrowser.open_new(artist_imageURL)
-            webbrowser.open_new(track_imageURL)
-            webbrowser.open_new(playURL)
+#            webbrowser.open_new(artist_imageURL)
+#            webbrowser.open_new(track_imageURL)
+#            webbrowser.open_new(playURL)
 
 
             try:                                   # Instantiate JSON if needed 
